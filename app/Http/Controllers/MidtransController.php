@@ -18,7 +18,7 @@ class MidtransController extends Controller
         $data = $request->all();
 
         // Log awal untuk debugging
-        Log::info('Delitekno Midtrans callback received', $data);
+        //Log::info('Delitekno Midtrans callback received', $data);
 
         // Validasi minimal
         $validator = Validator::make($data, [
@@ -29,23 +29,20 @@ class MidtransController extends Controller
         ]);
 
         if ($validator->fails()) {
-            Log::warning('Invalid payload received from Midtrans', $validator->errors()->toArray());
+            //Log::warning('Invalid payload received from Midtrans', $validator->errors()->toArray());
             return response()->json(['message' => 'Invalid payload', 'errors' => $validator->errors()], 400);
         }
 
         // Validasi signature
         $serverKey = env('MIDTRANS_SERVER_KEY');
-        $expectedSignature = hash(
-            'sha512',
-            $data['order_id'] . $data['status_code'] . $data['gross_amount'] . $serverKey
-        );
+        $expectedSignature = hash('sha512', $data['order_id'] . $data['status_code'] . $data['gross_amount'] . $serverKey);
 
         if ($data['signature_key'] !== $expectedSignature) {
-            Log::warning('Invalid signature from Midtrans', [
-                'received' => $data['signature_key'],
-                'expected' => $expectedSignature,
-                'order_id' => $data['order_id']
-            ]);
+            // Log::warning('Invalid signature from Midtrans', [
+            //     'received' => $data['signature_key'],
+            //     'expected' => $expectedSignature,
+            //     'order_id' => $data['order_id']
+            // ]);
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
